@@ -1,5 +1,9 @@
 # Optimal_maturity
 
+**Crash intro to updating files in Github** 
+
+Comment: As in all other files, please go editing this file as we continue learning, or if you want to introduce edits or clarifications. 
+
 Step 1) Download Github Desktop. 
 
 Step 2) 
@@ -9,7 +13,7 @@ Step 2)
 
 Step 3) 
 
-- In Github desktop you clone the repository. You go to File, Clone Repository,  then choose URL and you paste the URL (or username repository). Below it tell you the local path where it pasting it. 
+- In Github desktop you clone the repository. You go to File, Clone Repository,  then choose URL and you paste the URL (or user-name repository). Below it tell you the local path where it pasting it. 
 
 Setup is completed. 
 
@@ -20,5 +24,9 @@ How to Introduce changes?
 2) Up left press changes. Then fill summary below, and if needed a description. 
 
 3) Press commit to master. 
+
+4) Up right, press push to origin. This will upload the changes to the online repository. 
+
+
 
  
