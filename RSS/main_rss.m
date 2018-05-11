@@ -38,7 +38,7 @@ parameters.delta     = 0.04  ; % coupon portion
 parameters.phi  = 0.125;       % Poisson arrival rate
 
 % adjustment cost
-parameters.lambda_bar = 20;%50;
+parameters.lambda_bar = 50;%50;
 
 %% Computations
 %Step 1: Bond Prices in Risky Steady State
