@@ -1,0 +1,9 @@
+function c_out=c_path(c_in,rss,steapaths,parameters)
+path_out=compute_path(c_in,rss,paths,parameters);
+c_out=path_out.c_out;
+if rand>0.98
+    figure(10)
+    plot(c_out); hold on; drawnow
+end
+% disp(iter)
+% disp(residual)
