@@ -16,10 +16,11 @@ gamma   = parameters.gamma;
 rho     = parameters.rho; 
 
 % Recover Prices 
-if strcmp(steady.type,'ss');
+if strcmp(steady.type,'ss')
     c_in    = zeros(1,N_t)+steady.c_ss;
     c_rss_in= steady.c_ss*1.2;
-else strcmp(steady.type,'asymptotic');
+else
+    strcmp(steady.type,'asymptotic')
     r_ss    = steady.r_ss;
     c_rss_in=parameters.y_ss;
     c_in    = 0.5*c_rss_in.*exp(-(rho-r_ss)/gamma.*t);
@@ -30,12 +31,13 @@ tic
 figure
 % solve_method='solver';
 c_in=[c_rss_in c_in]; % Initial Guess!
-if strcmp(solve_method,'iter');
+if strcmp(solve_method,'iter')
     for iter = 1:max_iter
         
         % Construct Deterministic path
-%         c_n_out=c_path(c_n_in,f0,rss,paths,parameters);
-        c_out= c_path(c_in,rss,steady,paths,parameters);
+        %         c_out= c_path(c_in,rss,steady,paths,parameters);
+        path_out=compute_path(c_in,rss,steady,paths,parameters);
+        c_out=path_out.c_out;
         
         c_in = relax_path * c_out + (1-relax_path) * c_in;
         
@@ -43,15 +45,15 @@ if strcmp(solve_method,'iter');
         residual=max(abs(c_in./c_out-1));
         if iter>100
             if residual<tol_path
-                iter=max_iter+1;
+%                 iter=max_iter+1;
                 disp('Converged in less than max iterations');
                 break
             end
         end
         
         % Report
-         if mod(iter,20) == 0
-             if 1==0
+        if mod(iter,20) == 0
+            if 1==0
                 plot(c_out); hold on; drawnow
              end
             disp(iter)
@@ -67,7 +69,8 @@ if strcmp(solve_method,'iter');
     if iter == max_iter
         error('Error: maximum number of iterations reached')
     end
-else strcmp(solve_method,'solver');
+else
+    strcmp(solve_method,'solver');
     fc2solve= @(x) x-c_path(x,rss,steady,paths,parameters);
     options=optimset('Algorithm','levenberg-marquardt');
     c_in   = fsolve(@(x) fc2solve(x),c_in,options);

@@ -22,25 +22,25 @@ parameters.dt        = 1/12  ; % monthly steps
 parameters.solve_method='iter'; % iter for iterative, solver for solver
 
 % Number of Shocks
-N_r=1           ;
-N_y=1           ;
+N_r=   1;
+N_y=   1;
 
 %% Model parameters
 % Time Period annual
 % Preference Parameters
-parameters.gamma   = 4.00     ; % risk aversion
+parameters.gamma   = 2.00     ; % risk aversion
 parameters.rho     = 0.0405   ; % discount factor - Model is Quarterly
 
 % Output parameters
 parameters.y_ss         = 1.0    ; % output at steady state
 parameters.y_0(1:N_y)   = 1.0    ; % initial value, output after a shock
-parameters.rho_y(1:N_y) = 0.3  ; % persistence output after shock - half life 1/rho months
+parameters.rho_y(1:N_y) = 0.05    ; % persistence output after shock - half life 1/rho months
 
 %Interest Rate Shock Parameters
 parameters.r_bar_ss           = 0.04                ; % steady-state short rate
 parameters.delta              = parameters.r_bar_ss ; % coupon = r_ss so we have bonds at par
 parameters.r_bar_0(1:N_r,1)   = 0.041               ; % initial value
-parameters.rho_r_bar(1:N_r,1) = 0.95                ; % persistence (in months)
+parameters.rho_r_bar(1:N_r,1) = 0.05                ; % persistence (in months)
 
 %Risky Steady State Parameters
 parameters.phi  = 0.125       ; % Poisson arrival rate
@@ -59,7 +59,7 @@ parameters.U_p_ratio=@(c_a,c_b) (c_a/c_b).^(-parameters.gamma);
 time_preallocate;
 
 %% Paths
-% Path for the Short Rate
+% Path for the Short Rate and output
 exo_path_construct;
 
 %% Save Exogenous Paths
@@ -70,12 +70,12 @@ paths.y_n     = y_n    ;
 % Step 1: Bond Prices in Risky Steady State
 psi_n          = solve_HJB_path(r_bar_n,r_bar_ss,parameters) ;
 psi_0_mat      = psi_n(:,1)                                  ;
-psi_ss         = solve_HJB_ss(r_bar_ss,parameters)           ;
+psi_ss         = psi_n(:,end);
 psi_rss        = solve_HJB_rss(r_bar_ss,psi_0_mat,parameters);
 
 % results
-results.psi_ss=psi_ss  ;
-results.psi_rss=psi_rss;
+results.psi_ss  = psi_ss ;
+results.psi_rss = psi_rss;
 % results.yield_rss = parameters.delta-log(results.psi_rss)./(tau'); % not
 % sure why coupon was here.
 results.yield_rss = 0-log(results.psi_rss)./(tau');
@@ -84,12 +84,12 @@ results.yield_rss = 0-log(results.psi_rss)./(tau');
 steady=solve_steady(psi_ss,parameters);
 
 % Save Steady States
-steady.psi_ss=psi_ss;
-rss.psi_rss=psi_rss  ;
-paths.psi_n=psi_n   ;
+steady.psi_ss  = psi_ss;
+rss.psi_rss    = psi_rss  ;
+paths.psi_n    = psi_n   ;
 
 % Saving Variables
-paths.psi_rss= psi_rss             ;
+paths.psi_rss = psi_rss             ;
 if plotit==1
    surf(t,tau,psi_n,'edgecolor','none','FaceAlpha',0.5); axis tight;
    xlabel('t','Interpreter','latex'); ylabel('$\tau$','Interpreter','latex'); 
@@ -113,17 +113,17 @@ results.c_n         = path_out.c_n          ;
 
 %% Main Plots
 % Main Plot Params
-pre_t=-10;
-font_size=20;
-line_width=4;
-LineStyle_2=':';
-base_color=[0.2 0.2 0.6];
+pre_t       = -10;
+font_size   = 20;
+line_width  =4;
+LineStyle_2 = ':';
+base_color  = [0.2 0.2 0.6];
 
 % Main Plots
-pre_t=-10;
+pre_t       = -10;
 
 % Parameters
-dt=parameters.dt;
+dt = parameters.dt;
 
 %% Plots for the Transitional Dynamics
 color_base=[0.1 0.1 0.6]; 

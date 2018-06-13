@@ -6,12 +6,12 @@ function [j_rss] = solve_HJB_rss(r_rss,j_0_mat,parameters)
 time_preallocate;
 
 % model parameters
-delta   = parameters.delta ; % Coupon
-phi     = parameters.phi   ; % intensity of the shock
-prob_vec= parameters.prob_vec;
+delta    = parameters.delta ; % Coupon
+phi      = parameters.phi   ; % intensity of the shock
+prob_vec = parameters.prob_vec;
 
 % Pre-Allocation - Build HJB_rss Operator
-u         = delta+phi*(j_0_mat*prob_vec); % vector of coupons + change in valuation
+u         = delta + phi*(j_0_mat*prob_vec); % vector of coupons + change in valuation
 u(1)      = u(1) +1/dt                  ;
 A0        = -speye(N_tau)               ;
 aa        = ones(N_tau-1,1)             ;

@@ -1,4 +1,4 @@
-function [j_ss]=solve_HJB_ss(r_ss,parameters);
+function [j_ss]=solve_HJB_ss(r_ss,parameters)
 % Unpacking vectors
 time_preallocate;
 

@@ -1,4 +1,4 @@
-function [steady]=solve_steady(psi_ss,parameters);
+function [steady]=solve_steady(psi_ss,parameters)
 % Numerical parameters
 parameter_unpack;
 time_preallocate;
@@ -11,18 +11,19 @@ y_ss      = parameters.y_ss ;
 r_bar_ss  = parameters.r_bar_ss ;
 
 %% STEADY STATE
-v_ss    = solve_HJB_ss(rho,parameters)   ; % HJB: Solution at Steady State
-iota_ss = 1/lambda_bar*(1-v_ss./psi_ss); % Optimal policies
+% v_ss    = solve_HJB_ss(rho,parameters)   ; % HJB: Solution at Steady State
+v_ss      = delta/rho*(1-exp(-rho*tau'))+exp(-rho*tau');
+iota_ss  = 1/lambda_bar*(1-v_ss./psi_ss); % Optimal policies
 f_ss     = flip(cumsum(flip(iota_ss)))*dt      ; % KFE
-c_ss = y_ss-f_ss(1)+sum(psi_ss.*(1-1/2*lambda_bar.*iota_ss).*iota_ss-delta*f_ss)*dt; % Consumption
-r_ss = rho;
-steady.type='ss';
+c_ss     = y_ss-f_ss(1)+sum(psi_ss.*(1-1/2*lambda_bar.*iota_ss).*iota_ss-delta*f_ss)*dt; % Consumption
+r_ss     = rho;
+steady.type = 'ss';
 if c_ss<=0 % The case lambda <lambda_min
     r_ss = (r_bar_ss + rho) /2; % First guess
     for iter = 1:max_iter
         v_ss     = delta/r_ss*(1-exp(-r_ss*tau'))+exp(-r_ss*tau');
-        iota_ss  = 1./lambda_bar.*(1-v_ss./psi_ss);% Optimal policies
-        f_ss     = flip(cumsum(flip(iota_ss)))*dt;% KFE
+        iota_ss  = 1./lambda_bar.*(1-v_ss./psi_ss); % Optimal policies
+        f_ss     = flip(cumsum(flip(iota_ss)))*dt;  % KFE
         c_ss = y_ss  - f_ss(1) + sum(psi_ss.*(1-1/2 *lambda_bar.*iota_ss).*iota_ss-delta*f_ss) * dt;% Consumption
         if  abs(c_ss) < tol_path
             steady.type='asymptotic';
