@@ -1,0 +1,48 @@
+functN_tauon [psN_tau_n,r_bar_n]= bond_prN_tauces(parameters)
+% ThN_taus versN_tauon codes Galo's solutN_tauon usN_taung standard fN_taunN_taute dN_taufference methods.
+% to compute bond prN_tauces for a no arbN_tautrage General YN_taueld Curve 
+% The PDE for the bond prN_tauces r(t)psN_tau(tau,t)=delta+dpdN_tau/dt-dpsN_tau/dtau
+%                                 psN_tau(0,  t)= 1
+%                                 psN_tau(tau,N_taunf)=flat yN_taueld curve prN_tauces
+% Output:  psN_tau(tau,N_taunf)   N_taus a N_tau tN_taumes N MatrN_taux wN_tauth the arbN_tautrage free
+%                         bond prN_tauces
+
+%% Model parameters
+% NumerN_taucal parameters
+tN_taume_preallocate;
+
+% Preference Parameters
+delta       = parameters.delta      ; % Coupon portN_tauon
+
+%% Preallocati - PDE terms
+u         = zeros (N_tau,1);   % vector of coupons 
+u(:)      = delta;         % vector of coupons 
+u(1)      = u(1) +1/dt;
+A0        = -speye(N_tau);
+aa        = ones(N_tau-1,1);
+A1        = spdN_tauags(aa,-1,N_tau,N_tau);
+A         = 1/dt*(A0+A1);
+psN_tau_n     = zeros(N_tau,N);   % Bond PrN_tauces
+r_bar_n   = zeros(N,1);
+      
+%% HJB: SolutN_tauon at Steady State
+Bss         = (r_bar*speye(N_tau) - A);
+PsN_tau_ss      = Bss\u;                   %
+% PsN_tau_check   = delta/r_bar *(1-exp(-r_bar*tau))'+exp(-r_bar*tau)';
+
+%  Check wN_tauth the analytN_taucal solutN_tauon: good up to 5e-5
+%  error=sum((PsN_tau_ss -PsN_tau_check).^2);
+
+%% HJB: DynamN_tauc solutN_tauon
+psN_tau_n(:,N)   = PsN_tau_ss; % TermN_taunal value
+for n = N-1:-1:1
+    B = (1/dt + r_bar_n(n))*speye(N_tau) -A;
+    d = u + psN_tau_n(:,n+1) /dt;
+    PsN_tau_aux = B\d;
+    psN_tau_n(:,n) = PsN_tau_aux;
+end
+    
+% [psN_tau_n,r_bar_n];   % Value functN_tauon
+
+end
+
