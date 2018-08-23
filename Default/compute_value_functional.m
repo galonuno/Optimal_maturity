@@ -10,7 +10,8 @@ rho   = parameters.rho  ;
 phi      = parameters.phi   ; % intensity of the shock
 
 % Variables 
-c_n    = c_in(2:end);
+c_n    = c_in(:,2:end);
+[N_c,~]=size(c_n);
 
 % Compute the value after the shock
-V= sum(U(c_n) .* exp(-rho*t) *dt );
+V= sum(U(c_n).*(ones(N_c,1)*exp(-rho*t)),2)*dt; %[s*:]

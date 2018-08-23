@@ -1,4 +1,4 @@
-function [path]=solve_path(f_0,v_n,paths,parameters)
+function [path]=solve_path(rr,yy,f_0,v_n,paths,parameters)
 % Unpacking Code Parameters
 parameter_unpack;
 time_preallocate;
@@ -8,8 +8,8 @@ delta = parameters.delta;
 lambda_bar= parameters.lambda_bar;
 
 % Unpack Exogenous Paths
-psi_n   = paths.psi_n; 
-y_n     = paths.y_n  ;
+psi_n   = paths.psi_n(:,:,rr); 
+y_n     = paths.y_n(yy,:);
 
 % Optimal policies
 iota_n = 1/lambda_bar*(1-v_n./psi_n); % Optimal policies
