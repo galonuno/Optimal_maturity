@@ -41,7 +41,7 @@ figure
 % Initial Guess!
 c_in=[c_rss_in c_in]; 
 Phi        = ones(N_r,N_y); % changed to cap Phi
-rss.a(1:N_r,1:N_y)      = 1; 
+rss.a      = 0; 
 
 if strcmp(solve_method,'iter')
     for iter = 1:max_iter

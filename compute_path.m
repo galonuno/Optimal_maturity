@@ -43,7 +43,7 @@ for rr=1:N_r
         v_0 = v_n(:,1,ii)                                     ;
 
         %% Step 2.b: Solving for Values at RSS -> not sure where phi is...
-        v_0_mat=v_0_mat+phi*prob_mat(rr,yy)*v_0*U_p_ratio(c_0(ii),c_rss(ii))             ; % [s*:<- important change here]
+        v_0_mat=v_0_mat+prob_mat(rr,yy)*rss.a(ii)*v_0*U_p_ratio(c_0(ii),c_rss(ii))             ; % [s*:<- important change here]
         % adapt with rss.a term
     end
 end

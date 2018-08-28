@@ -1,7 +1,7 @@
 function Phi = phi_cdf(parameters,V,V_a)
-
-% Galo, you are imposing a uniform solution
 defmodel=parameters.defmodel;
+muprobit=parameters.muprobit;
+
 % defmodel='exo';
 switch defmodel
     case 'exo'

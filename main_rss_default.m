@@ -45,16 +45,17 @@ parameters.r_bar_0(1:N_r,1)   = [0.06; 0.08]        ; % [s*] initial value [0.04
 parameters.rho_r_bar(1:N_r,1) = [0.25; 0.35]        ; % [s*] persistence (in years)
 
 %Risky Steady State Parameters
-parameters.phi  = 0.05       ; % Poisson arrival rate
+parameters.phi  = 0.001         ; % Poisson arrival rate
 
 % adjustment cost
 parameters.lambda_bar = 7.0240  ; %
 
 % Default parameters - Uniform distribution
 parameters.defmodel='logit'     ; % default model
-parameters.V_low = -30;
-parameters.V_high = -30;
-% parameters.V_low = -9;
+parameters.muprobit=10          ; % >> Why?
+% parameters.V_low = -30;
+% parameters.V_high = -30;
+% % parameters.V_low = -9;
 % parameters.V_high = 1;
 
 % Update to a matrix of joint probabilities - discrete matrix of marginals

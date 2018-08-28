@@ -1,6 +1,6 @@
 function Phi_p = phi_pdf(parameters,V,V_a)
-% Galo, you are imposing a uniform solution
 defmodel=parameters.defmodel;
+muprobit=parameters.muprobit;
 
 % defmodel='exo';
 switch defmodel
@@ -18,7 +18,7 @@ switch defmodel
     case 'probit'
         
     case 'logit'
-        muprobit=10;
-        Phi_p=muprobit*(exp(muprobit*V)./(exp(muprobit*V)+exp(muprobit*V_a))-exp(muprobit*V)./(exp(muprobit*V)+exp(muprobit*V_a).^(2)));
+        %Phi_p=muprobit*(exp(muprobit*V)./(exp(muprobit*V)+exp(muprobit*V_a))-exp(muprobit*V)./(exp(muprobit*V)+exp(muprobit*V_a).^(2)));
+        Phi_p=muprobit*(exp(muprobit*V).*exp(muprobit*V_a))./((exp(muprobit*V)+exp(muprobit*V_a)).^2);
 end
 
