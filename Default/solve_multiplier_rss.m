@@ -1,4 +1,4 @@
-function mu_rss=solve_multiplier_rss(parameters,path_out)
+function mu_rss=solve_multiplier_rss(parameters,rss)
 % Computes the value of the Lagrange multiplier in the RSS
 
 % Unpacking vectors
@@ -9,9 +9,10 @@ rho         = parameters.rho;
 r_bar_ss    = parameters.r_bar_ss;
 dU          = parameters.dU;
 lambda_bar  = parameters.lambda_bar;
+
 % Variables
-c_rss     = path_out.c_out(:,1)   ; 
-iota_rss  = path_out.iota_out(:,1);
+c_rss     = rss.c_rss   ; 
+iota_rss  = rss.iota_rss;
 
 %% Pre-Allocation - Build HJB_ss Operator
 u         = dU(c_rss) .*iota_rss .*(1-0.5*lambda_bar*iota_rss)  ;   % vector of coupons 

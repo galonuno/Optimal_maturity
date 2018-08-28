@@ -22,8 +22,10 @@ parameters.dt        = 1/12  ; % monthly steps
 parameters.solve_method='iter'; % iter for iterative, solver for solver
 
 % Number of Shocks
-N_r=   1;
-N_y=   1;
+N_r=   2;
+N_y=   3;
+parameters.N_r=N_r;
+parameters.N_y=N_y;
 
 %% Model parameters
 % Time Period annual
@@ -33,29 +35,36 @@ parameters.rho     = 0.0416   ; % discount factor - Model is Quarterly
 
 % Output parameters
 parameters.y_ss         = 1.0    ; % output at steady state
-parameters.y_0(1:N_y)   = 1.0    ; % initial value, output after a shock
-parameters.rho_y(1:N_y) = 0.05    ; % persistence output after shock - half life 1/rho months
-
+parameters.y_0(1:N_y,1)   = [0.99; 1.0; 0.95 ]; % [s*] initial value, output after a shock
+parameters.rho_y(1:N_y,1) = [0.25; 0.45; 0.22]; % [s*] persistence output after shock - half life 1/rho months
+ 
 %Interest Rate Shock Parameters
 parameters.r_bar_ss           = 0.04                ; % steady-state short rate
 parameters.delta              = parameters.r_bar_ss ; % coupon = r_ss so we have bonds at par
-parameters.r_bar_0(1:N_r,1)   = 0.042           ; % initial value [0.042 ; 0.043] 
-parameters.rho_r_bar(1:N_r,1) = 0.05                ; % persistence (in years)
+parameters.r_bar_0(1:N_r,1)   = [0.06; 0.08]        ; % [s*] initial value [0.042 ; 0.043] 
+parameters.rho_r_bar(1:N_r,1) = [0.25; 0.35]        ; % [s*] persistence (in years)
 
 %Risky Steady State Parameters
-parameters.phi  = 0.05       ; % Poisson arrival rate
+parameters.phi  = 0.001         ; % Poisson arrival rate
 
 % adjustment cost
 parameters.lambda_bar = 7.0240  ; %
 
 % Default parameters - Uniform distribution
-parameters.V_low = -30;
-parameters.V_high = -30;
-% parameters.V_low = -9;
+parameters.defmodel='logit'     ; % default model
+parameters.muprobit=10          ; % >> Why?
+% parameters.V_low = -30;
+% parameters.V_high = -30;
+% % parameters.V_low = -9;
 % parameters.V_high = 1;
 
-% there's only one state
-parameters.prob_vec=1         ;
+% Update to a matrix of joint probabilities - discrete matrix of marginals
+% - sum of row and columns must add up to 1
+parameters.prob_mat=zeros(N_r,N_y); % [s*]
+parameters.prob_mat=[0.1 0.25 0.25; 0.3 0.05 0.05]; % [s*] % joint probability distribution, correlation is built in
+if sum(sum(parameters.prob_mat))~=1;
+    error('Prob matrix won''t add to one');
+end
 
 % Price of Risk
 parameters.U         =  @(c) (c.^(1-parameters.gamma)-1)/(1-parameters.gamma);
@@ -69,31 +78,38 @@ time_preallocate;
 % Path for the Short Rate and output
 exo_path_construct;
 
+% Autarky Values
+autarkyV_construct;
+parameters.V_a=kron(ones(N_r,1),V_a)     ;
+
 %% Save Exogenous Paths
 paths.r_bar_n = r_bar_n;
 paths.y_n     = y_n    ;
 
-%% Step 1: Bond Prices in Steady State
-psi_n          = solve_HJB_path(r_bar_n,r_bar_ss,parameters) ;
-psi_0_mat      = psi_n(:,1)                                  ;
-psi_ss         = solve_HJB_ss(r_bar_ss,parameters)           ;
-rss.psi_0_mat  = psi_0_mat;
+%% Step 1: Bond Prices in Steady State - index of r shock in columns
+psi_n=zeros(N_tau,N_t,N_r); % [s*]
+psi_0_mat=zeros(N_tau,N_r); % [s*]
+for rr=1:N_r
+    psi_n(:,:,rr)          = solve_HJB_path(r_bar_n(rr,:),r_bar_ss,parameters) ; % [s*]
+    psi_0_mat(:,rr)        = psi_n(:,1,rr)                                     ; % [s*]
+end
+psi_ss         = solve_HJB_ss(r_bar_ss,parameters)                             ; % [s*]
+rss.psi_0_mat  = psi_0_mat                                                     ; % [s*]
 % results
-results.psi_ss  = psi_ss ;
+results.psi_ss  = psi_ss                                                       ; % [s*]
 
 %% Step 2: Value functions in Steady State 
-steady=solve_steady(psi_ss,parameters);
+steady=solve_steady(psi_ss,parameters)      ;
 % Save Steady States
-steady.psi_ss  = psi_ss;
-paths.psi_n    = psi_n   ;
+steady.psi_ss  = psi_ss                     ;
+paths.psi_n    = psi_n                      ;
 
 %% Step 2: Risky-Steady State
-path_out        = solve_rss_path(rss,steady,paths,parameters);
+path_out        = solve_rss_path(rss,steady,paths,parameters); % [s*<-]
 rss.psi_rss     = path_out.psi_rss  ;
 results.psi_rss = path_out.psi_rss;
 paths.psi_rss   = path_out.psi_rss             ;
 results.yield_rss = parameters.delta-log(results.psi_rss)./(tau');
-
 
 %% Step 3: Pack Results
 results.f_n         = path_out.f_n          ;
