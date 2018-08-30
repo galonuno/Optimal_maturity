@@ -3,4 +3,4 @@ Matlab codes of the paper "Optimal Debt-Maturity Management" by Saki Bigio, Juan
 
 
 
-Folders. 1) Perfect Foresight. 2) RSS. 
+Folders. 1) Perfect Foresight. 2) RSS (solved ubnder different methods) 3 Default (RSS with default). 

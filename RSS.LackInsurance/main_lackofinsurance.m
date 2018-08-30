@@ -1,19 +1,19 @@
 % Code to compute the Risky Steady State
 %(c) Bigio, Nuno & Passadore model
 % Solves the frictionless case with only income shocks
-close all; % clear;
+close all; clear;
 plotit=1;
 
 %% Code parameters
 % Tolerance
 parameters.tol_path   = 1e-3;  % tolerance parameter optimal path
-parameters.tol        = 1e-5;  % tolerance parameter
+parameters.tol        = 1e-8;  % tolerance parameter
 parameters.max_iter   = 5000;  % maximum number of iterations
 parameters.relax      = 0.1 ;  % relaxation coefficient
 parameters.relax_path = 0.01;  % relaxation coefficient optimal path
 
 % Numerical parameters
-parameters.t_max     = 100    ; % maximum number of years (time)
+parameters.t_max     = 1050    ; % maximum number of years (time)
 parameters.tau_max   = 20    ; % maximum number of years (maturity)
 parameters.dt        = 1/12  ; % monthly steps
 
@@ -27,7 +27,7 @@ N_y=1           ;
 %% Model parameters
 % Time Period annual
 % Preference Parameters
-parameters.gamma   = 0.7     ; % risk aversion
+parameters.gamma   = 2.00     ; % risk aversion
 parameters.rho     = 0.0545   ; % discount factor - Model is Quarterly
 
 % Output parameters
@@ -48,8 +48,13 @@ parameters.phi  = 0.125       ; % Poisson arrival rate
 parameters.prob_vec=1         ;
 
 % Price of Risk
-parameters.U=@(c) (c.^(1-parameters.gamma)-1)/(1-parameters.gamma);
+if parameters.gamma~=1
+    parameters.U=@(c) (c.^(1-parameters.gamma)-1)./(1-parameters.gamma);
+else
+    parameters.U=@(c) log(c);
+end
 parameters.U_p_ratio=@(c_a,c_b) (c_a/c_b).^(-parameters.gamma);
+parameters.Upinv=@(x) (x).^(-1/parameters.gamma);
 
 %% Pre-Allocation
 time_preallocate;
@@ -64,24 +69,32 @@ paths.y_n     = y_n    ;
 
 %% Computations
 % Step 1: Build NPV
-dt     = parameters.dt;  
-rho    = parameters.rho;  
-gamma  = parameters.gamma;  
-U_p_ratio= parameters.U_p_ratio;  
-phi= parameters.phi; 
+% Unpack Parameters
+dt     = parameters.dt          ;  
+rho    = parameters.rho         ;  
+gamma  = parameters.gamma       ;  
+U_p_ratio= parameters.U_p_ratio ;  
+phi= parameters.phi             ; 
+U=parameters.U                  ;
+
+% Unpack Paths
 r_bar_n= paths.r_bar_n;
 y_n    = paths.y_n    ;
-npv=@(r_vec,z_vec) sum(z_vec.*exp(-cumsum([0 r_vec(1:end-1)].*dt)).*dt)      ;
-cgnr=@(r_vec) (r_vec*(1-gamma)-rho)/gamma   ; % Consumption Growth Netted Rate
-npv_cgnr=@(cg_vec) sum(ones(1,N_t).*exp(cumsum([0 cg_vec(1:end-1)].*dt)).*dt)  ;
-npv_y_n=npv(r_bar_n,y_n);
-cg_rate_n=cgnr(r_bar_n);
-npv_c=npv_cgnr(cg_rate_n);
+
+% Defintions
+npv=@(r_vec,z_vec) sum(z_vec.*exp(-cumsum([0 r_vec(1:end-1)].*dt)).*dt)   ; % NPV formula
+npv_cg=@(r_vec) sum(ones(1,N_t).*exp(cumsum([0 r_vec(1:end-1)].*dt)).*dt) ; % NPV of constant
+cg_d=@(r_vec) (r_vec*(1-gamma)-rho)/gamma                                 ; % Consumption Growth discounted
+
+% Applying formulas
+npv_y_n=npv(r_bar_n,y_n); % NPV income
+cg_rate_n=cg_d(r_bar_n);  % Consumption Growth Rate - Discount Rate
+npv_c=npv_cg(cg_rate_n);  % Chi function (NPV of C_t as function of C_0)
 
 % Step 2: Back Consumption after shock
 fc_rss=@(B) y_ss+r_bar_ss*B                                     ;
 fc_0=@(B) (B+npv_y_n)/npv_c                                     ;
-B_res=@(B) r_bar_ss-(r_bar_ss+phi*(U_p_ratio(fc_0(B),fc_rss(B))-1))  ;
+B_res=@(B) rho-(r_bar_ss+phi*(U_p_ratio(fc_0(B),fc_rss(B))-1))  ;
 B_rss = fzero(@(B) B_res(B),0.0)                                ;
 c_rss = fc_rss(B_rss);
 c_0   = fc_0(B_rss);
@@ -92,9 +105,92 @@ D_rss =-B_rss;
 results.c_n  = c_n;
 results.c_rss= c_rss;
 
+% Value after Shock
+V_path=@(c_n) sum(U(c_n).*exp(-cumsum(rho*[0 1+0*c_n(1:end-1)].*dt)).*dt)  ;
+V_0=V_path(c_n)                                                            ;
+V_rss=(U(c_rss)+phi*V_0)/(rho+phi)                                         ;
 
 %% Solve Full Value Function
+% Value at new path
+N_b=2000                    ; 
+plotiter=1                  ;
+U  = parameters.U           ;
+N_t=length(t)               ;
+Upinv=parameters.Upinv      ;
 
+% Formulas
+c_path=@(B_vec,r_vec) fc_0(B_vec).*(ones(1,N_t).*exp(cumsum([0 r_vec(1:end-1)].*dt)));
+c_test=c_path(B_rss,((r_bar_n-rho)/gamma));
+tol=parameters.tol    ;
+gamma=parameters.gamma;
+
+b_vec=linspace(-npv_y_n+0.1*npv_y_n, 0.1*y_ss/r_bar_ss, N_b)';
+V    =U(fc_rss(b_vec))/rho;
+V_0_b=zeros(N_b,1);
+for bb=1:N_b
+    V_0_b(bb)=V_path(c_path(b_vec(bb),((r_bar_n-rho)/gamma)));    
+end
+cond=2*parameters.tol;
+sigma = zeros(N_b,1);
+iter = 0;
+% Initial Guess
+dvF = zeros(N_b,1); dvB = zeros(N_b,1);
+while cond>tol % value function iteration
+    V_in =V;
+    
+    % Finite difference approximation
+    dvF(1:end-1) = (V(2:end) - V(1:end-1))./(b_vec(2:end) - b_vec(1:end-1)); % Forward
+    dvF(N_b)       = (y_ss + r_bar_ss*b_vec(end))^(-gamma);
+    dvB(2:end)   = (V(2:end) - V(1:end-1))./(b_vec(2:end) - b_vec(1:end-1)); % Backward
+    dvB(1)       = (y_ss + r_bar_ss*b_vec(1))^(-gamma);
+    
+    % Consumption Back and Forward
+    cF = Upinv(dvF)           ; % First-order condition
+    cB = Upinv(dvB)           ; % First-order condition
+    
+    % Update Drifts and Volatilities  
+    % Assuming we work with risk-free technology at borrowing constraint | % Adopting Risky Technology Away from borrowing Constraint
+    muF = r_bar_ss.*b_vec + (y_ss - cF)  ;
+    muB = r_bar_ss.*b_vec + (y_ss - cB)  ;
+    HcF       = U(cF) + dvF.*muF;      % forward Hamiltonian
+    HcB       = U(cB) + dvB.*muB;      % backward Hamiltonian
+    c0 = r_bar_ss.*b_vec + y_ss; 
+
+    % Handling with non-convexities
+    Ineither = (1-(muF>0)) .* (1-(muB<0));
+    Iunique  = (muB<0).*(1-(muF>0)) + (1-(muB<0)).*(muF>0);
+    Iboth    = (muB<0).*(muF>0);
+    Ib       = Iunique.*(muB<0) + Iboth.*(HcB>=HcF);
+    If       = Iunique.*(muF>0) + Iboth.*(HcF>=HcB);
+    I0       = Ineither;   
+    Ib(N_b) = 1; If(N_b) = 0; I0(N_b) = 0;        
+    
+    c_vec = cF.*If + cB.*Ib + c0.*I0;
+      
+    U_vec =U(c_vec)+phi*V_0_b;
+    
+    % Solve HJB_implicit
+    V=HJB_implicit(U_vec,b_vec,muF,muB,sigma,rho+phi,dt,V,Ib,If);
+    
+    
+    % Update condition
+    cond=max(abs(V./V_in-1));
+    
+    % Plot if needed
+    if plotiter==1
+        if rand>0.95
+            plot(b_vec,V); drawnow; hold on;
+        end
+    end
+    iter=iter+1;
+end
+% Find Steady State
+[~,index_min]=min(abs(-c_vec+r_bar_ss*b_vec+y_ss));
+b_rss_im=b_vec(index_min);
+c_rss_val=0;
+disp(['Difference in implicit and direct method: ' num2str(abs(b_rss_im-B_rss)/B_rss)*100 '\% away']);
+
+% Comparison
 
 %% Main Plot
 pre_t=-10;
@@ -119,7 +215,22 @@ color_mat=  [color1; color2; color3; color4];
 color_base2=[0.6 0.1 0.1];
 color_rss=  [0.6 0.1 0.1];
 color_rss_val=  [0.6 0.6 0.1];
-markersize   = 40;
+markersize   = 60;
+
+figure
+plot(b_vec,V,'LineWidth',3); hold on; 
+scatter(B_rss,V_rss,markersize,2,'MarkerFaceColor',color_rss_val);
+axis tight; line([B_rss B_rss],[ylim],'LineWidth',3);
+
+% Plot Solutions
+figure
+plot(b_vec,muF,'LineWidth',3); hold on; plot(b_vec,muB,'LineWidth',3); axis tight; grid on;
+plot(b_vec,-c_vec+r_bar_ss*b_vec+y_ss,'LineWidth',3);
+axis tight; line([B_rss B_rss],[ylim],'LineWidth',3)
+[~,index_min]=min(abs(-c_vec+r_bar_ss*b_vec+y_ss));
+b_rss_im=b_vec(index_min);
+c_rss_val=0;
+disp(['Difference in implicit and direct method: ' num2str(abs(b_rss_im-B_rss)/B_rss)]);
 
 figure
 plot(t,results.c_n,'Linewidth',line_width,'Color',color_base); hold on;
