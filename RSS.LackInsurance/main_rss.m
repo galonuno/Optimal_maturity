@@ -27,7 +27,7 @@ N_y=1           ;
 %% Model parameters
 % Time Period annual
 % Preference Parameters
-parameters.gamma   = 1.0     ; % risk aversion
+parameters.gamma   = 0.7     ; % risk aversion
 parameters.rho     = 0.0545   ; % discount factor - Model is Quarterly
 
 % Output parameters
