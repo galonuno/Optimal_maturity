@@ -25,7 +25,7 @@ psi_rss   = rss.psi_rss;
 c_rss         = c_in(:,1);
 c_0           = c_in(:,2); 
 c_in          = c_in(:,2:N_t+1);
-r_n(:,1:N_t-1)= rho+sigma*(c_in(:,2:N_t)./c_in(:,1:N_t-1)-1)*dt;
+r_n(:,1:N_t-1)= rho+sigma*(c_in(:,2:N_t)./c_in(:,1:N_t-1)-1)/dt;
 if strcmp(type,'ss')
     r_n(1:N_r*N_y,N_t)    = rho;
 elseif strcmp(type,'asymptotic')

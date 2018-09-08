@@ -65,7 +65,7 @@ Debt_rss = sum(results.f_rss(:,end))*dt;
 Debt     = sum(results.f_n(:,:))*dt;
 
 % Duration
-[average_duration, average_term_to_maturity] = Portfolio_duration(results, parameters);
+[average_duration, average_term_to_maturity] = Portfolio_duration(results, parameters, paths);
 %% Plot the Yield Curve - RSS
 figure(1)
 subplot(2,2,1)
@@ -104,7 +104,7 @@ if parameters.mode == 'PF'
     title('Issuances $\iota(\tau)$','FontSize',font_size,'interpreter','latex')
     hold on; grid on;
     subplot(223)
-    plot(tau,results.f_n(:,end)./abs(sum(results.f_n(:,end))),'Linewidth',line_width,'Color',base_color); hold on;
+    plot(tau,results.f_n(:,end)./abs(sum(results.f_n(:,end))*dt),'Linewidth',line_width,'Color',base_color); hold on;
     xlabel('Maturity, $\tau$','FontSize',font_size,'interpreter','latex')
     title('Maturity dist., $f(\tau) / \int_0^T f(\tau) d\tau$','FontSize',font_size,'interpreter','latex')
     hold on; grid on;
