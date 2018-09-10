@@ -26,7 +26,6 @@ c_rss         = c_in(:,1);
 c_0           = c_in(:,2); 
 c_in          = c_in(:,2:N_t+1);
 r_n(:,1:N_t-1)= rho+sigma*(c_in(:,2:N_t)./c_in(:,1:N_t-1)-1)/dt;
-% r_n(:,1:N_t-1)= rho+sigma*(c_in(:,2:N_t)./c_in(:,1:N_t-1)-1)*dt;
 if strcmp(type,'ss')
     r_n(1:N_r*N_y,N_t)    = rho;
 elseif strcmp(type,'asymptotic')
@@ -44,7 +43,7 @@ for rr=1:N_r
         v_0 = v_n(:,1,ii)                                     ;
 
         %% Step 2.b: Solving for Values at RSS -> not sure where phi is...
-        v_0_mat=v_0_mat+phi*prob_mat(rr,yy)*v_0*U_p_ratio(c_0(ii),c_rss(ii))             ; % [s*:<- important change here]
+        v_0_mat=v_0_mat+prob_mat(rr,yy)*rss.a(ii)*v_0*U_p_ratio(c_0(ii),c_rss(ii))             ; % [s*:<- important change here]
         % adapt with rss.a term
     end
 end
