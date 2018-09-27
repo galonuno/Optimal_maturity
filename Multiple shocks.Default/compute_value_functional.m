@@ -7,7 +7,6 @@ time_preallocate;
 
 U = parameters.U;
 rho   = parameters.rho  ;
-phi      = parameters.phi   ; % intensity of the shock
 
 % Variables 
 c_n    = c_in(:,2:end);

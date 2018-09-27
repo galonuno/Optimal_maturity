@@ -38,16 +38,16 @@ plot(lambda_bar_vec,c_ss,'Linewidth',2,'Color','k'); grid on;
 [y1s]=ylim;
 line([lambda_o lambda_o],[ y1s(1) y1s(2)],'Color','k','LineWidth',2,'LineStyle','--');
 xlabel('Liquidity, $\bar{\lambda}$', 'FontSize',14,'interpreter','latex')
-title('Consumption, $c_{\infty}$','FontSize',14,'interpreter','latex');
-text(lambda_o,y1s(1)-0.1*(y1s(2)-y1s(1)),'$\lambda_{o}$','interpreter','latex','FontSize',14);
+title('(a) Consumption, $c_{\infty}$','FontSize',14,'interpreter','latex');
+text(lambda_o,y1s(1)-0.1*(y1s(2)-y1s(1)),'$\bar{\lambda_{o}}$','interpreter','latex','FontSize',14);
 
 subplot(222)
 plot(lambda_bar_vec,r_ss,'Linewidth',2,'Color','k')
 [y1s]=ylim;
 line([lambda_o lambda_o],[ y1s(1) y1s(2)],'Color','k','LineWidth',2,'LineStyle','--');
 xlabel('Liquidity, $\bar{\lambda}$', 'FontSize',14,'interpreter','latex')
-title('Discount, $r_{\infty}$','FontSize',14,'interpreter','latex');
-text(lambda_o,y1s(1)-0.1*(y1s(2)-y1s(1)),'$\lambda_{o}$','interpreter','latex','FontSize',14); grid on;
+title('(b) Discount, $r_{\infty}$','FontSize',14,'interpreter','latex');
+text(lambda_o,y1s(1)-0.1*(y1s(2)-y1s(1)),'$\bar{\lambda_{o}}$','interpreter','latex','FontSize',14); grid on;
 ylim([parameters.r_bar parameters.rho+0.0001])
 
 subplot(223)
@@ -58,7 +58,7 @@ plot(tau,iota_ss(I_lambda_o,:),'LineWidth',2,'Color','r'); hold on;
 
     xlabel('Maturity, $\tau$', 'FontSize',14,'interpreter','latex');
     %ylabel('$\lambda$', 'FontSize',14,'interpreter','latex');
-    title('Issuances, $\iota_{\infty}$','FontSize',14,'interpreter','latex');  grid on;
+    title('(c) Issuances, $\iota_{\infty}$','FontSize',14,'interpreter','latex');  grid on;
 
     
 subplot(224)
@@ -68,7 +68,7 @@ end
 plot(tau,f_ss(I_lambda_o,:),'LineWidth',2,'Color','r'); hold on;
 xlabel('Maturity, $\tau$', 'FontSize',14,'interpreter','latex');
 %ylabel('$\lambda$', 'FontSize',14,'interpreter','latex');
-title('Distribution, $f_{\infty}$','FontSize',14,'interpreter','latex');  grid on;
+title('(d) Distribution, $f_{\infty}$','FontSize',14,'interpreter','latex');  grid on;
 
 cd figures
 orient landscape;

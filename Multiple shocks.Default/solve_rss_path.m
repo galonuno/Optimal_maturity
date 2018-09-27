@@ -13,7 +13,6 @@ solve_method=parameters.solve_method;
 
 % Update Outer Parameters
 gamma   = parameters.gamma   ; 
-phi     = parameters.phi     ; 
 rho     = parameters.rho     ;    
 prob_mat= parameters.prob_mat;
 N_r     = parameters.N_r     ;
