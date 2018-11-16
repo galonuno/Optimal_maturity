@@ -2,7 +2,7 @@
 % Main Plot Params
 pre_t       = -10;
 font_size   = 14;
-line_width  =4;
+line_width  =2;
 base_color  = [0.2 0.2 0.6];
 
 % Main Plots
@@ -13,19 +13,19 @@ pos_t       = 40;
 dt = parameters.dt;
 
 %% Plots for the Transitional Dynamics
-color_base =[0.1 0.1 0.6]; 
+color_base =[0 0 1]; 
 color1   =  [0.4 0.2 0.8];
 color2   =  [0.2 0.6 0.8];
 color3   =  [0.2 0.2 0.8];
 color4   =  [0.8 0.2 0.8];
 color_mat=  [color1; color2; color3; color4];
-color_base2=[0.6 0.1 0.1];
+color_base2=[0 0.4 0.1];
 color_rss=  [0.6 0.1 0.1];
 color_rss_val=  [0.6 0.6 0.1];
 markersize   = 40;
-LineStyle_2 = ':';
+LineStyle_2 = '-.';
 LineStyle_3 = '--';
-LineStyle_4 = '-.';
+LineStyle_4 = ':';
 
 
 % Ranges for debt levels
@@ -66,32 +66,34 @@ Debt     = sum(results.f_n(:,:))*dt;
 
 % Duration
 [average_duration, average_term_to_maturity] = Portfolio_duration(results, parameters, paths);
-%% Plot the Yield Curve - RSS
-figure(1)
-subplot(2,2,1)
-plot(tau,results.psi_rss,'Linewidth',line_width,'Color',color_base)
-xlabel('Maturity $\tau$','FontSize',font_size,'interpreter','latex')
-title('Price of debt $\psi_{rss}(\tau)$','FontSize',font_size,'interpreter','latex')
- 
 
-subplot(2,2,2)
-plot(tau,results.yield_rss ,'Linewidth',line_width,'Color',color_base)
-xlabel('Maturity $\tau$','FontSize',font_size,'interpreter','latex')
-title('Yield curve $\Psi_{rss}(\tau)$','FontSize',font_size,'interpreter','latex')
-hold on; axis tight; grid on; 
 
-subplot(2,2,3:4)
-plot(t,paths.r_bar_n*100,'Linewidth',3,'Color',color_base); hold on;
-plot([pre_t 0],[parameters.r_bar_ss parameters.r_bar_ss]*100,'Linewidth',3,'Color',color_base); axis tight;
-scatter(0,parameters.r_bar_ss*100,markersize,2,'o','MarkerEdgeColor',color_base);
-scatter(0,paths.r_bar_n(1)*100,markersize,2,'o','filled','MarkerEdgeColor',color_base,'MarkerFaceColor',color_base);
-xlabel('Time $t$ (years)','FontSize',font_size,'interpreter','latex')
-title('Short rate $\bar{r}_t$ (bps)','FontSize',font_size,'interpreter','latex')
-hold on; grid on; % ylim([0 max(parameters.r_bar_n)]);
-axis tight;
-
-%% Steady State - Comparisons
-figure(2)
+% %% Plot the Yield Curve - RSS
+% figure(1)
+% subplot(2,2,1)
+% plot(tau,results.psi_rss,'Linewidth',line_width,'Color',color_base)
+% xlabel('Maturity $\tau$','FontSize',font_size,'interpreter','latex')
+% title('Price of debt $\psi_{rss}(\tau)$','FontSize',font_size,'interpreter','latex')
+%  
+% 
+% subplot(2,2,2)
+% plot(tau,results.yield_rss ,'Linewidth',line_width,'Color',color_base)
+% xlabel('Maturity $\tau$','FontSize',font_size,'interpreter','latex')
+% title('Yield curve $\Psi_{rss}(\tau)$','FontSize',font_size,'interpreter','latex')
+% hold on; axis tight; grid on; 
+% 
+% subplot(2,2,3:4)
+% plot(t,paths.r_bar_n*100,'Linewidth',3,'Color',color_base); hold on;
+% plot([pre_t 0],[parameters.r_bar_ss parameters.r_bar_ss]*100,'Linewidth',3,'Color',color_base); axis tight;
+% scatter(0,parameters.r_bar_ss*100,markersize,2,'o','MarkerEdgeColor',color_base);
+% scatter(0,paths.r_bar_n(1)*100,markersize,2,'o','filled','MarkerEdgeColor',color_base,'MarkerFaceColor',color_base);
+% xlabel('Time $t$ (years)','FontSize',font_size,'interpreter','latex')
+% title('Short rate $\bar{r}_t$ (bps)','FontSize',font_size,'interpreter','latex')
+% hold on; grid on; % ylim([0 max(parameters.r_bar_n)]);
+% axis tight;
+% 
+% %% Steady State - Comparisons
+figure
 if parameters.mode == 'PF'
     subplot(221)
     plot(tau,results.f_n(:,end),'Linewidth',line_width,'Color',base_color); hold on;
@@ -149,18 +151,26 @@ else
 end
 
 %% TRANSITIONAL DYNAMICS AFTER The SHOCK
-figure(3)
+figure
 subplot(3,2,1)
 plot(t,results.r_n*100,'Linewidth',line_width,'Color',color_base); hold on;
-plot([pre_t 0],[parameters.rho parameters.rho]*100,'Linewidth',3,'Color',color_base);
+plot(t,paths.r_bar_n*100,'Linewidth',line_width,'Color',color_base2,'LineStyle',LineStyle_2); 
 scatter(0,parameters.rho*100,markersize,color_base,'o');
+scatter(0,parameters.r_bar_ss *100,markersize,color_base2,'o');
+plot([pre_t 0],[parameters.rho parameters.rho]*100,'Linewidth',line_width,'Color',color_base);
+scatter(t(end),results.r_n(end)*100,markersize,color_base,'>','filled'); 
+plot([pre_t 0],[parameters.r_bar_ss  parameters.r_bar_ss ]*100,'Linewidth',line_width,'Color',color_base2,'LineStyle',LineStyle_2);
+scatter(t(end),paths.r_bar_n(end)*100,markersize,color_base,'>','filled'); 
 plot(0,parameters.rho*100,'*','Linewidth',line_width,'Color',color_rss_val,'MarkerSize',2);
 scatter(0,results.r_n(1)*100,markersize,color_base,'o','filled'); 
-scatter(t(end),results.r_n(end)*100,markersize,color_base,'>','filled'); 
+plot(0,parameters.r_bar_ss *100,'*','Linewidth',line_width,'Color',color_rss_val,'MarkerSize',2);
+scatter(0,paths.r_bar_n(1)*100,markersize,color_base2,'o','filled'); 
+title('(a) Discount, $r(t)$, and rates, $\bar{r}(t)$','FontSize',font_size,'interpreter','latex')
 xlabel('Time, $t$ (years)','FontSize',font_size,'interpreter','latex')
 ylabel('$\%$','FontSize',font_size,'interpreter','latex')
-title('Time discount, $r(t)$','FontSize',font_size,'interpreter','latex')
-hold on; xlim([pre_t pos_t]); grid on;
+xlim([pre_t pos_t]); grid on;
+legend({'$r(t)$','$\bar{r}(t)$'},'interpreter','latex','FontSize',font_size,...
+    'Location','Best','Box','off','Orientation','horizontal');
 
 subplot(3,2,2)
 plot(t,results.c_n,'Linewidth',line_width,'Color',color_base); hold on;
@@ -168,22 +178,22 @@ plot(t,paths.y_n,'Linewidth',line_width,'Color',color_base2,'LineStyle',LineStyl
 scatter(0,results.c_n(1),markersize,color_base,'o','filled'); 
 scatter(0,paths.y_n(1),markersize,color_base2,'o','filled'); 
 scatter(t(end),results.c_n(end),markersize,color_base,'>','filled');
-plot([pre_t 0],[results.c_rss results.c_rss],'Linewidth',3,'Color',color_base);
+plot([pre_t 0],[results.c_rss results.c_rss],'Linewidth',line_width,'Color',color_base);
 scatter(t(end),paths.y_n(end),markersize,color_base2,'>','filled');
-plot([pre_t 0],[paths.y_n(end) paths.y_n(end)],'Linewidth',3,'Color',color_base2,'LineStyle',LineStyle_2);
+plot([pre_t 0],[paths.y_n(end) paths.y_n(end)],'Linewidth',line_width,'Color',color_base2,'LineStyle',LineStyle_2);
 scatter(0,results.c_rss,markersize,color_base,'o');
 scatter(0,paths.y_n(end),markersize,color_base2,'o');
 plot(0,results.c_rss,'*','Linewidth',4,'Color',color_rss_val,'MarkerSize',2);
 plot(0,paths.y_n(end),'*','Linewidth',4,'Color',color_rss_val,'MarkerSize',2);
 grid on; xlabel('Time, $t$ (years)','FontSize',font_size,'interpreter','latex');
-title('Consumption, $c(t)$, and output, $y(t)$','FontSize',font_size,'interpreter','latex');
+title('(b) Consumption, $c(t)$, and income, $y(t)$','FontSize',font_size,'interpreter','latex');
 xlim([pre_t pos_t]); 
-legend({'$c(t)$','y(t)'},'interpreter','latex','FontSize',font_size,...
+legend({'$c(t)$','$y(t)$'},'interpreter','latex','FontSize',font_size,...
     'Location','Best','Box','off','Orientation','horizontal');
 
 subplot(3,2,3)
 plot(t,Debt*100,'Linewidth',line_width,'Color',color_base); hold on;
-plot([pre_t 0],[Debt_rss Debt_rss]*100,'Linewidth',3,'Color',color_base);
+plot([pre_t 0],[Debt_rss Debt_rss]*100,'Linewidth',line_width,'Color',color_base);
 scatter(0,Debt_rss*100,markersize,color_base,'o');
 plot(0,Debt_rss*100,'*','Linewidth',line_width,'Color',color_rss_val,'MarkerSize',2);
 scatter(0,Debt(1)*100,markersize,color_base,'o','filled'); 
@@ -191,19 +201,20 @@ scatter(t(end),Debt(end)*100,markersize,color_base,'>','filled');
 
 xlabel('Time, $t$ (years)','FontSize',font_size,'interpreter','latex')
 ylabel('$\%$ $y_{ss}$','FontSize',font_size,'interpreter','latex')
-title('Total debt, $b(t)$','FontSize',font_size,'interpreter','latex')
+title('(c) Total debt, $b(t)$','FontSize',font_size,'interpreter','latex')
 hold on; xlim([pre_t pos_t]); grid on;
 
 subplot(3,2,4)
 plot(t,average_duration,'Linewidth',line_width,'Color',color_base); hold on;
-plot([pre_t 0],[average_duration(1) average_duration(1)],'Linewidth',3,'Color',color_base);
+
+plot([pre_t 0],[average_duration(1) average_duration(1)],'Linewidth',line_width,'Color',color_base);
 scatter(0,average_duration(1),markersize,color_base,'o');
 plot(0,average_duration(1),'*','Linewidth',line_width,'Color',color_rss_val,'MarkerSize',2);
 scatter(0,average_duration(1),markersize,color_base,'o','filled'); 
 scatter(t(end),average_duration(end),markersize,color_base,'>','filled'); 
 xlabel('Time, $t$ (years)','FontSize',font_size,'interpreter','latex')
 ylabel('Years','FontSize',font_size,'interpreter','latex')
-title('Average duration','FontSize',font_size,'interpreter','latex')
+title('(d) Average duration','FontSize',font_size,'interpreter','latex')
 hold on; xlim([pre_t pos_t]); grid on;
 
 
@@ -236,7 +247,7 @@ xlim([pre_t pos_t]);
 % legend({'0-5 year','5-10 years','10-15 years','15 $\geq$ years'},'Interpreter','Latex','FontSize',font_size)
 xlabel('Time, $t$ (years)','FontSize',font_size,'interpreter','latex')
 ylabel('$\%$ $y_{ss}$','FontSize',font_size,'interpreter','latex')
-title('Issuances rate, $\iota(t)$','FontSize',font_size,'interpreter','latex')
+title('(e) Issuances, $\iota(t)$','FontSize',font_size,'interpreter','latex')
 grid on;
 
 subplot(3,2,6)
@@ -266,5 +277,5 @@ xlim([pre_t pos_t]);
 
 xlabel('Time, $t$ (years)','FontSize',font_size,'interpreter','latex')
 ylabel('$\%$ $y_{ss}$','FontSize',font_size,'interpreter','latex')
-title('Debt outstanding, $f(t)$','FontSize',font_size,'interpreter','latex')
+title('(f) Debt, $f(t)$','FontSize',font_size,'interpreter','latex')
 grid on;

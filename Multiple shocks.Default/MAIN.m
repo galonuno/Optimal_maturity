@@ -94,24 +94,22 @@ parameters.rho_r_bar(1:N_r,1) = (1-0.95)*4      ;  % [s*] persistence (in years)
 % parameters.gamma        = 2.00     ; % risk aversion
 
 %% 2 RSS
-parameters.mode = 'RS'; % RSS
-
-%Risky Steady State Parameters - No RSS
+% parameters.mode = 'RS'; % RSS
+% 
+% %Risky Steady State Parameters - No RSS
 % parameters.phi  = 0.02          ; % Poisson arrival rate
-parameters.phi  = 0.05          ; % Poisson arrival rate
-
-% Default parameters           - No default
-parameters.defmodel ='logit'     ; % default model
-parameters.muprobit =10;
-parameters.penalty  = 1;        % Autarky penalty
-
+% % Default parameters           - No default
+% parameters.defmodel ='logit'     ; % default model
+% parameters.muprobit =10;
+% parameters.penalty  = 1;        % Autarky penalty
+% 
 % %2.1 Output shock
 % parameters.y_0(1:N_y,1)   = 0.95; % [s*] initial value, output after a shock
 % execute_codes % % 
-% cd figures; save RSS_Y; cd ..
+% % cd figures; save RSS_Y; cd ..
 % close all; 
 % parameters.y_0(1:N_y,1)   = 1; % [s*] initial value, output after a shock
-% 
+
 % 
 % % 2.2 Interest rate shock
 % parameters.r_bar_0(1:N_r,1)   = 0.05           ; % [s*] initial value volatility of 0.048 quarterly
@@ -121,43 +119,67 @@ parameters.penalty  = 1;        % Autarky penalty
 % parameters.r_bar_0(1:N_r,1)   = 0.04        ; % [s*] initial value 
 
 % 2.3 Interest rate shock IES = 0
-parameters.gamma        = 0.00     ; % risk aversion
-
-parameters.r_bar_0(1:N_r,1)   = 0.05           ; % [s*] initial value volatility of 0.048 quarterly
-execute_codes;
-% cd figures; save RSS_R_IES_0; cd ..
-close all; 
-parameters.r_bar_0(1:N_r,1)   = 0.04        ; % [s*] initial value 
-parameters.gamma        = 2.00     ; % risk aversion
+% parameters.gamma        = 0.00     ; % risk aversion
+% 
+% parameters.r_bar_0(1:N_r,1)   = 0.05           ; % [s*] initial value volatility of 0.048 quarterly
+% execute_codes;
+% % cd figures; save RSS_R_IES_0; cd ..
+% close all; 
+% parameters.r_bar_0(1:N_r,1)   = 0.04        ; % [s*] initial value 
+% parameters.gamma        = 2.00     ; % risk aversion
 
 % %% 3 Default
-% parameters.mode = 'DF'; % RSS with default
+parameters.mode = 'DF'; % RSS with default
+
+%Risky Steady State Parameters - No RSS
+parameters.phi  = 0.02          ; % Poisson arrival rate
+
+% Default parameters           - No default
+parameters.defmodel ='logit'     ; % default model
+parameters.muprobit = 100;
+parameters.penalty  = 0.015;        % Autarky penalty
 % 
-% %Risky Steady State Parameters - No RSS
-% parameters.phi  = 0.02          ; % Poisson arrival rate
-% 
-% % Default parameters           - No default
-% parameters.defmodel ='logit'     ; % default model
-% parameters.muprobit = 100;
-% parameters.penalty  = 0.015;        % Autarky penalty
-% 
-% % %3.1 Output shock
+% %3.1 Output shock
 % parameters.y_0(1:N_y,1)   = 0.95; % [s*] initial value, output after a shock
 % execute_codes % % 
-% cd figures; save DEF; cd ..
+% % cd figures; save DEF_Y; cd ..
 % close all; 
 % parameters.y_0(1:N_y,1)   = 1; % [s*] initial value, output after a shock
 % 
-% % %3.2 Output shock IES = 0
+% % 3.2 Interest rate shock
+% parameters.r_bar_0(1:N_r,1)   = 0.05           ; % [s*] initial value volatility of 0.048 quarterly
+% execute_codes;
+% cd figures; save DEF_R; cd ..
+% close all; 
+% parameters.r_bar_0(1:N_r,1)   = 0.04        ; % [s*] initial value 
+
+% % %3.3 Output shock IES = 0
 % parameters.gamma          = 0.00     ; % risk aversion
 % parameters.y_0(1:N_y,1)   = 0.95; % [s*] initial value, output after a shock
 % execute_codes % % 
-% cd figures; save DEF_IES_0; cd ..
+% cd figures; save DEF_Y_IES_0; cd ..
 % close all; 
 % parameters.y_0(1:N_y,1)   = 1; % [s*] initial value, output after a shock
 % parameters.gamma         = 2.00     ; % risk aversion
 
+% % 3.4 Interest rate shock IES = 0
+% parameters.gamma          = 0.00     ; % risk aversion
+% parameters.r_bar_0(1:N_r,1)   = 0.05           ; % [s*] initial value volatility of 0.048 quarterly
+% execute_codes;
+% cd figures; save DEF_R_IES_0; cd ..
+% close all; 
+% parameters.r_bar_0(1:N_r,1)   = 0.04        ; % [s*] initial value 
+% parameters.gamma         = 2.00     ; % risk aversion
+
+%3.5 Output shock OMEGA = 0
+parameters.mode = 'OMEGA'; % RSS with default
+parameters.y_0(1:N_y,1)   = 0.95; % [s*] initial value, output after a shock
+execute_codes % % 
+cd figures; save DEF_Y_OMEGA_0; cd ..
+close all; 
+parameters.y_0(1:N_y,1)   = 1; % [s*] initial value, output after a shock
+parameters.mode = 'DF'; % RSS with default
 %% PLOTTING
 % plotting_RSS
- plotting
-% plotting_DEF
+% plotting
+%  plotting_DEF

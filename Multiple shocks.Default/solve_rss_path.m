@@ -92,16 +92,16 @@ if strcmp(solve_method,'iter')
         Phi     = reshape(Phi,[N_y N_r])'  ;
         Phi_prime  = phi_pdf(parameters,V,V_a); % [s*:<- need to fix here...discuss with Galo [done]]
         mu_rss     = solve_multiplier_rss(parameters,rss_iter); % [s*:<- need to fix here...discuss with Galo [done]]
-        EPhi=0;  EPhi_prime=0; EPhiMu=0; ii=0;
+        ii=0;
         for rr=1:N_r
             for yy=1:N_y
-                ii=1+ii;
-%                 EPhi =  EPhi   +prob_mat(rr,yy)*Phi(rr,yy);
-%                 EPhiMu= EPhiMu +prob_mat(rr,yy)*Phi_prime(ii)*sum(mu_rss.*rss.psi_0_mat(:,rr)*dt);
+                ii=1+ii;       
                   rss.a(ii)= Phi(rr,yy) + Phi_prime(ii)*sum(mu_rss.*rss.psi_0_mat(:,rr)*dt); 
+                  if parameters.mode == 'OMEGA' % When Omega = 0
+                      rss.a(ii)= Phi(rr,yy); 
+                  end
             end
         end
-%         rss.a      = EPhi + EPhiMu; 
     end
     if iter == max_iter
         error('Error: maximum number of iterations reached')
@@ -121,6 +121,7 @@ toc
 path_out.psi_rss   = rss.psi_rss;
 path_out.V         = V;
 path_out.mu_rss    = mu_rss;
+path_out.Phi       = Phi;
 
     
 
